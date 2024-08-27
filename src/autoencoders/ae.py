@@ -10,6 +10,7 @@ from tensorflow.keras.layers import (Conv1D, Conv1DTranspose, Conv2D,
                                      Input, LeakyReLU, Permute, Reshape)
 from tensorflow.keras.models import Model, load_model
 from tensorflow.keras.optimizers import Adam
+from tensorflow_addons.layers import InstanceNormalization
 
 os.environ['TF_DETERMINISTIC_OPS'] = '1'
 os.environ['TF_CUDNN_DETERMINISTIC'] = '1'
@@ -113,6 +114,7 @@ class AutoEncoder():
                     kernel_initializer=RandomNormal(stddev=0.01, seed=self.random_seed),
                     bias_initializer=Zeros(),
                 )(x)
+                x = InstanceNormalization()(x)
             else:
                 x = Conv1D(
                     filters=self.n_filters[i],
@@ -123,6 +125,7 @@ class AutoEncoder():
                     kernel_initializer=RandomNormal(stddev=0.01, seed=self.random_seed),
                     bias_initializer=Zeros(),
                 )(x)
+                x = InstanceNormalization()(x)
             self.conv_shapes.append(x.shape[1:])
 
         x = Flatten()(x)
@@ -178,6 +181,7 @@ class AutoEncoder():
                     kernel_initializer=RandomNormal(stddev=0.01, seed=self.random_seed),
                     bias_initializer=Zeros(),
                 )(x)
+                x = InstanceNormalization()(x)
             output_layer = Conv2DTranspose(
                 filters=self.output_channels,
                 kernel_size=1,
@@ -198,6 +202,7 @@ class AutoEncoder():
                     kernel_initializer=RandomNormal(stddev=0.01, seed=self.random_seed),
                     bias_initializer=Zeros(),
                 )(x)
+                x = InstanceNormalization()(x)
             output_layer = Conv1DTranspose(
                 filters=self.output_channels,
                 kernel_size=1,
@@ -269,6 +274,38 @@ class AutoEncoder():
         plt.ylabel('Loss')
         plt.legend()
         plt.show()
+    
+    def compute_latent_vector(self, X):
+        if len(X.shape) == 3:
+            X = X.reshape(1, *X.shape)
+        z = self.encoder.predict(X)
+
+        return z
+    
+    def recostruct(self, X):
+        X = X.reshape(1, *X.shape)
+        return self.ae.predict(X, verbose=0)
+
+    def visualize_recostruction(self, X):
+        recostruction = self.recostruct(X)
+
+        fig, axs = plt.subplots(1, 2, figsize=(8, 3))
+        if X.shape[0] == 3:
+            original_image = np.moveaxis(X, 0, -1)
+            recostruction_image = recostruction.reshape(recostruction.shape[1], recostruction.shape[2], recostruction.shape[3])
+            recostruction_image = np.moveaxis(recostruction_image, 0, -1)
+            cmap=None
+        else:
+            original_image = X.reshape(X.shape[1], X.shape[2]).T
+            recostruction_image = recostruction.reshape(recostruction.shape[2], recostruction.shape[3]).T
+            cmap='gray'
+
+        axs[0].imshow(original_image, cmap=cmap)
+        axs[0].set_title('Original')
+        axs[0].axis('off')
+        axs[1].imshow(recostruction_image, cmap=cmap)
+        axs[1].set_title('Recostruction')
+        axs[1].axis('off')
 
     def save(self):
         self.ae.save('saved_models/' + self.save_path)

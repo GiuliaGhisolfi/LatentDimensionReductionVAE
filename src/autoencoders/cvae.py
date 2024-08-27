@@ -1,5 +1,6 @@
 import os
 
+import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
 from keras.initializers import RandomNormal, Zeros
@@ -8,6 +9,7 @@ from tensorflow.keras.layers import (Concatenate, Conv1D, Conv1DTranspose,
                                      Flatten, Input, LeakyReLU, Permute,
                                      Reshape)
 from tensorflow.keras.models import Model
+from tensorflow_addons.layers import InstanceNormalization
 
 from src.autoencoders.vae import (ReparameterizationLayer,
                                   VariationalAutoEncoder)
@@ -45,6 +47,7 @@ class ConditionalVAE(VariationalAutoEncoder):
                     kernel_initializer=RandomNormal(stddev=0.01, seed=self.random_seed),
                     bias_initializer=Zeros(),
                 )(x)
+                x = InstanceNormalization()(x)
             else:
                 x = Conv1D(
                     filters=self.n_filters[i],
@@ -55,6 +58,7 @@ class ConditionalVAE(VariationalAutoEncoder):
                     kernel_initializer=RandomNormal(stddev=0.01, seed=self.random_seed),
                     bias_initializer=Zeros(),
                 )(x)
+                x = InstanceNormalization()(x)
             self.conv_shapes.append(x.shape[1:])
 
         x = Flatten()(x)
@@ -128,6 +132,7 @@ class ConditionalVAE(VariationalAutoEncoder):
                     kernel_initializer=RandomNormal(stddev=0.01, seed=self.random_seed),
                     bias_initializer=Zeros(),
                 )(x)
+                x = InstanceNormalization()(x)
             output_layer = Conv2DTranspose(
                 filters=self.output_channels,
                 kernel_size=1,
@@ -148,6 +153,7 @@ class ConditionalVAE(VariationalAutoEncoder):
                     kernel_initializer=RandomNormal(stddev=0.01, seed=self.random_seed),
                     bias_initializer=Zeros(),
                 )(x)
+                x = InstanceNormalization()(x)
             output_layer = Conv1DTranspose(
                 filters=self.output_channels,
                 kernel_size=1,
@@ -188,4 +194,39 @@ class ConditionalVAE(VariationalAutoEncoder):
 
         if self.save_model:
             self.save()
+    
+    def compute_latent_vector(self, X, cX):
+        if len(X.shape) == 3:
+            X = X.reshape(1, *X.shape)
+            cX = cX.reshape(1, *cX.shape)
+        _, _, z = self.encoder.predict(X, cX)
+
+        return z
+
+    def recostruct(self, X, cX):
+        X = X.reshape(1, *X.shape)
+        cX = cX.reshape(1, *cX.shape)
+
+        return self.ae.predict([X, cX], verbose=0)
+
+    def visualize_recostruction(self, X, cX):
+        recostruction = self.recostruct(X, cX)
+
+        fig, axs = plt.subplots(1, 2, figsize=(8, 3))
+        if X.shape[0] == 3:
+            original_image = np.moveaxis(X, 0, -1)
+            recostruction_image = recostruction.reshape(recostruction.shape[1], recostruction.shape[2], recostruction.shape[3])
+            recostruction_image = np.moveaxis(recostruction_image, 0, -1)
+            cmap=None
+        else:
+            original_image = X.reshape(X.shape[1], X.shape[2]).T
+            recostruction_image = recostruction.reshape(recostruction.shape[2], recostruction.shape[3]).T
+            cmap='gray'
+
+        axs[0].imshow(original_image, cmap=cmap)
+        axs[0].set_title('Original')
+        axs[0].axis('off')
+        axs[1].imshow(recostruction_image, cmap=cmap)
+        axs[1].set_title('Recostruction')
+        axs[1].axis('off')
 

@@ -1,4 +1,4 @@
-- [ ] implementare grid search
+- [X] implementare grid search
 - [ ] train VAE
 - [ ] find best hyperparam
 

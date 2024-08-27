@@ -6,6 +6,7 @@ from tensorflow.keras.layers import (Conv1D, Conv1DTranspose, Conv2D, Dense,
                                      Dropout, Flatten, Input, Layer, LeakyReLU,
                                      Permute, Reshape)
 from tensorflow.keras.models import Model
+from tensorflow_addons.layers import InstanceNormalization
 
 from src.autoencoders.ae import AutoEncoder
 
@@ -55,6 +56,7 @@ class VariationalAutoEncoder(AutoEncoder):
                     kernel_initializer=RandomNormal(stddev=0.01, seed=self.random_seed),
                     bias_initializer=Zeros(),
                 )(x)
+                x = InstanceNormalization()(x)
             else:
                 x = Conv1D(
                     filters=self.n_filters[i],
@@ -65,6 +67,7 @@ class VariationalAutoEncoder(AutoEncoder):
                     kernel_initializer=RandomNormal(stddev=0.01, seed=self.random_seed),
                     bias_initializer=Zeros(),
                 )(x)
+                x = InstanceNormalization()(x)
             self.conv_shapes.append(x.shape[1:])
 
         x = Flatten()(x)
@@ -108,3 +111,10 @@ class VariationalAutoEncoder(AutoEncoder):
         z_mean, z_log_var, z = self.encoder(input_layer)
         output_layer = self.decoder(z)
         return Model(input_layer, output_layer, name='vae')
+    
+    def compute_latent_vector(self, X):
+        if len(X.shape) == 3:
+            X = X.reshape(1, *X.shape)
+        _, _, z = self.encoder.predict(X)
+
+        return z

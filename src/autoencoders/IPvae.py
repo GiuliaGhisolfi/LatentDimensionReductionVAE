@@ -1,5 +1,6 @@
 import os
 
+import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
 from keras.initializers import RandomNormal, Zeros
@@ -7,6 +8,7 @@ from tensorflow.keras.layers import (Conv1DTranspose, Conv2DTranspose, Dense,
                                      Dropout, Input, LeakyReLU, Permute,
                                      Reshape)
 from tensorflow.keras.models import Model
+from tensorflow_addons.layers import InstanceNormalization
 
 from src.autoencoders.vae import VariationalAutoEncoder
 
@@ -57,6 +59,7 @@ class IdentityPreservingVAE(VariationalAutoEncoder):
                     kernel_initializer=RandomNormal(stddev=0.01, seed=self.random_seed),
                     bias_initializer=Zeros(),
                 )(x_image)
+                x_image = InstanceNormalization()(x_image)
             output_layer_image = Conv2DTranspose(
                 filters=self.output_channels,
                 kernel_size=1,
@@ -77,6 +80,7 @@ class IdentityPreservingVAE(VariationalAutoEncoder):
                     kernel_initializer=RandomNormal(stddev=0.01, seed=self.random_seed),
                     bias_initializer=Zeros(),
                 )(x_image)
+                x_image = InstanceNormalization()(x_image)
             output_layer_image = Conv1DTranspose(
                 filters=self.output_channels,
                 kernel_size=1,
@@ -148,3 +152,24 @@ class IdentityPreservingVAE(VariationalAutoEncoder):
 
         if self.save_model:
             self.save()
+
+    def visualize_recostruction(self, X, cX):
+        recostruction, c_recostruction = self.recostruct(X, cX)
+
+        fig, axs = plt.subplots(1, 2, figsize=(8, 3))
+        if X.shape[0] == 3:
+            original_image = np.moveaxis(X, 0, -1)
+            recostruction_image = recostruction.reshape(recostruction.shape[1], recostruction.shape[2], recostruction.shape[3])
+            recostruction_image = np.moveaxis(recostruction_image, 0, -1)
+            cmap=None
+        else:
+            original_image = X.reshape(X.shape[1], X.shape[2]).T
+            recostruction_image = recostruction.reshape(recostruction.shape[2], recostruction.shape[3]).T
+            cmap='gray'
+
+        axs[0].imshow(original_image, cmap=cmap)
+        axs[0].set_title('Original')
+        axs[0].axis('off')
+        axs[1].imshow(recostruction_image, cmap=cmap)
+        axs[1].set_title('Recostruction')
+        axs[1].axis('off')

@@ -162,7 +162,7 @@ def loss_function(y_true, y_pred, threshold=0.8):
     if div == 0:
         return foreground_loss
     else:
-        background_loss = tf.reduce_sum(tf.square(background - background_pred)) / div
+        background_loss = tf.reduce_sum(tf.abs(background - background_pred)) / div
 
         return foreground_loss + background_loss
 
