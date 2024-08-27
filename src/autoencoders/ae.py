@@ -52,7 +52,7 @@ class AutoEncoder():
         self.padding = padding
         self.hidden_dims = hidden_dims
         self.activation = activation
-        self.optimizer = Adam(learning_rate=learning_rate)
+        self.optimizer = Adam(learning_rate=learning_rate, clipnorm=1.0)
         self.dropout = dropout
         self.alpha = alpha
         self.output_dim = input_dim

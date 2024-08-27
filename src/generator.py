@@ -52,7 +52,7 @@ class Generator:
         self.padding = padding
         self.hidden_dims = hidden_dims
         self.activation = activation
-        self.optimizer = Adam(learning_rate=learning_rate)
+        self.optimizer = Adam(learning_rate=learning_rate, clipnorm=1.0)
         self.dropout = dropout
         self.alpha = alpha
         self.output_dim = output_dim # output image
@@ -170,7 +170,11 @@ class Generator:
         self.generator.summary()
     
     def generate(self, z, cX):
-        return self.generator.predict([z, cX])
+        if self.input_type_int:
+            z = z.reshape(1, *z.shape)
+            cX = cX.reshape(1, *cX.shape)
+
+        return self.generator.predict([z, cX], verbose=0)
     
     def visualize_loss(self):
         plt.plot(self.generator.history.history['loss'], '--o', label='loss')
@@ -178,6 +182,28 @@ class Generator:
         plt.xlabel('Epochs')
         plt.ylabel('Loss')
         plt.legend()
+        plt.show()
+    
+    def visualize_recostruction(self, z, cX, X):
+        recostruction = self.generate(z, cX)
+
+        if X.shape[0] == 3:
+            original_image = np.moveaxis(X, 0, -1)
+            recostruction_image = recostruction.reshape(recostruction.shape[1], recostruction.shape[2], recostruction.shape[3])
+            recostruction_image = np.moveaxis(recostruction_image, 0, -1)
+            cmap=None
+        else:
+            original_image = X.reshape(X.shape[1], X.shape[2]).T
+            recostruction_image = recostruction.reshape(recostruction.shape[2], recostruction.shape[3]).T
+            cmap='gray'
+
+        fig, ax = plt.subplots(1, 2, figsize=(10, 5))
+        ax[0].imshow(original_image, cmap=cmap)
+        ax[0].set_title('Original')
+        ax[0].axis('off')
+        ax[1].imshow(recostruction_image, cmap=cmap)
+        ax[1].set_title('Reconstructed')
+        ax[1].axis('off')
         plt.show()
 
     def save(self):

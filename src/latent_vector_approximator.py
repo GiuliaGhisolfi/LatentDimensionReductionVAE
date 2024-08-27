@@ -270,7 +270,7 @@ class LatentVectorApproximator:
         return model
     
     def _compile(self):
-        optimizer = Adam(learning_rate=self.learning_rate)
+        optimizer = Adam(learning_rate=self.learning_rate, clipnorm=1.0)
 
         if self.n_gpu >= 2:
             with self.strategy.scope():

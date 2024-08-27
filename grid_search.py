@@ -14,7 +14,7 @@ params_grid = ParameterGrid({
     'padding': [['same', 'same', 'same', 'same']],
     'hidden_dims': [[2560], []], # 
     'activation': ['relu'],
-    'learning_rate': [0.002], #0.001, 0.005, 0.003, 0.0005, 0.01
+    'learning_rate': [0.001, 0.005, 0.003, 0.0005, 0.01],
     'dropout': [0.3],
     'alpha': [0.3, 0.2],  # LeakyReLU alpha
     'loss_function': [loss_function],
@@ -31,7 +31,7 @@ params_grid2 = ParameterGrid({
     'padding': [['same', 'same']],
     'hidden_dims': [[2560], []],
     'activation': ['relu'],
-    'learning_rate': [0.002], #0.001, 0.005, 0.003, 0.0005, 0.01
+    'learning_rate': [0.001], #0.001, 0.005, 0.003, 0.0005, 0.01
     'dropout': [0.3],
     'alpha': [0.3, 0.2],  # LeakyReLU alpha
     'loss_function': [loss_function],
