@@ -58,7 +58,7 @@ def rgb2gray(rgb):
 def dataset_to_greyscale(dataset):
     return np.array([rgb2gray(img.T) for img in dataset])
 
-def get_training_and_validation_sets_gray_scale(scenario='no_obj'):
+def get_training_and_validation_sets(scenario='no_obj'):
     X_train, Y_train, cX_train, X_val, Y_val, cX_val = get_training_and_validation_sets(scenario)
 
     X_train_gray_scale, Y_train_gray_scale, X_val_gray_scale, Y_val_gray_scale = dataset_to_greyscale(X_train
@@ -66,7 +66,7 @@ def get_training_and_validation_sets_gray_scale(scenario='no_obj'):
 
     return X_train_gray_scale, Y_train_gray_scale, cX_train, X_val_gray_scale, Y_val_gray_scale, cX_val
 
-def get_test_set_gray_scale(scenario='no_obj'):
+def get_test_set(scenario='no_obj'):
     X_val, Y_val, cX_val = get_test_set(scenario)
 
     X_val_gray_scale, Y_val_gray_scale = dataset_to_greyscale(X_val), dataset_to_greyscale(Y_val)

@@ -1,11 +1,10 @@
 from src.autoencoders.ae import AutoEncoder
 from src.latent_vector_approximator import LatentVectorApproximator
-from src.utils.utils import (get_training_and_validation_sets_gray_scale,
-                             loss_function)
+from src.utils.utils import get_training_and_validation_sets, loss_function
 
 
 def main():
-    X_train, Y_train, cX_train, X_val, Y_val, cX_val = get_training_and_validation_sets_gray_scale()
+    X_train, Y_train, cX_train, X_val, Y_val, cX_val = get_training_and_validation_sets()
 
     input_dim = X_train[0].shape
     latent_dim = 128

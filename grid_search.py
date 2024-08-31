@@ -2,8 +2,7 @@ import pandas as pd
 from sklearn.model_selection import GridSearchCV, ParameterGrid
 
 from src.autoencoders.vae import VariationalAutoEncoder
-from src.utils.utils import (get_training_and_validation_sets_gray_scale,
-                             loss_function)
+from src.utils.utils import get_training_and_validation_sets, loss_function
 
 params_grid = ParameterGrid({
     'input_dim': [[1, 64, 64]],
@@ -41,7 +40,7 @@ params_grid2 = ParameterGrid({
 
 
 def grid_search_vae(params, csv_file='grid_search/grid_search_vae_2.csv'):
-    X_train, Y_train, cX_train, X_val, Y_val, cX_val = get_training_and_validation_sets_gray_scale()
+    X_train, Y_train, cX_train, X_val, Y_val, cX_val = get_training_and_validation_sets()
 
     results = pd.DataFrame(columns=['hidden_dims', 'learning_rate', 'dropout', 'alpha', 'train_loss',
         'val_loss', 'train_mse', 'val_mse', 'train_mae', 'val_mae'])

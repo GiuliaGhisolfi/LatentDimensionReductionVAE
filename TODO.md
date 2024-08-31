@@ -12,6 +12,6 @@
 - [ ] trovare paramentri per fine tuning
 
 ### Altra repo
-- [ ] implementare gan
+- [X] implementare gan
 - [ ] preparare file per creare dataset con labels + condizionamenti sbagliati
 - [ ] pretrain
