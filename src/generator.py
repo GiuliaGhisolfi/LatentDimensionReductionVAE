@@ -177,8 +177,8 @@ class Generator:
         return self.generator.predict([z, cX], verbose=0)
     
     def visualize_loss(self):
-        plt.plot(self.generator.history.history['loss'], '--o', label='loss')
-        plt.plot(self.generator.history.history['val_loss'], '--o', label='val_loss')
+        plt.plot(self.generator.history.history['loss'], label='loss')
+        plt.plot(self.generator.history.history['val_loss'], label='val_loss')
         plt.xlabel('Epochs')
         plt.ylabel('Loss')
         plt.legend()

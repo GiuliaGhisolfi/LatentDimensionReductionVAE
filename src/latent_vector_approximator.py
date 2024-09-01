@@ -322,8 +322,8 @@ class LatentVectorApproximator:
         self.generator2.summarize()
 
     def visualize_loss(self):
-        plt.plot(self.model.history.history['loss'], '--o', label='loss')
-        plt.plot(self.model.history.history['val_loss'], '--o', label='val_loss')
+        plt.plot(self.model.history.history['loss'], label='loss')
+        plt.plot(self.model.history.history['val_loss'], label='val_loss')
         plt.xlabel('Epoch')
         plt.ylabel('Loss')
         plt.legend()
