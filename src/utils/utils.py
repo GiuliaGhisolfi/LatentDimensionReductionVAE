@@ -29,17 +29,22 @@ def tensor_to_numpy(tensor):
     except:
         return tensor.cpu().detach().numpy()
 
-def get_training_and_validation_sets(scenario='no_obj'):
+def get_training_and_validation_sets(scenario='no_obj', split_train_val=False):
     feature_set = Dataset(DATA_PATH, condition=scenario)
     X_train, Y_train, cX_train = feature_set.get_training_set()
 
-    X_train, X_val, Y_train, Y_val, cX_train, cX_val = train_test_split(X_train, Y_train, cX_train,
-        test_size=0.2, random_state=RANDOM_STATE, shuffle=False)
+    if split_train_val:
+        X_train, X_val, Y_train, Y_val, cX_train, cX_val = train_test_split(X_train, Y_train, cX_train,
+            test_size=0.2, random_state=RANDOM_STATE, shuffle=False)
+        
+        X_train, X_val, Y_train, Y_val, cX_train, cX_val = tensor_to_numpy(X_train), tensor_to_numpy(X_val
+        ), tensor_to_numpy(Y_train), tensor_to_numpy(Y_val), tensor_to_numpy(cX_train), tensor_to_numpy(cX_val)
+        
+        return X_train, Y_train, cX_train, X_val, Y_val, cX_val
     
-    X_train, X_val, Y_train, Y_val, cX_train, cX_val = tensor_to_numpy(X_train), tensor_to_numpy(X_val
-    ), tensor_to_numpy(Y_train), tensor_to_numpy(Y_val), tensor_to_numpy(cX_train), tensor_to_numpy(cX_val)
-    
-    return X_train, Y_train, cX_train, X_val, Y_val, cX_val
+    else:
+        X_train, Y_train, cX_train = tensor_to_numpy(X_train), tensor_to_numpy(Y_train), tensor_to_numpy(cX_train)
+        return X_train, Y_train, cX_train
 
 def get_test_set(scenario='no_obj'):
     feature_set = Dataset(DATA_PATH, condition=scenario)
