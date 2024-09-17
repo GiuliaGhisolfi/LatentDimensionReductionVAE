@@ -4,3 +4,7 @@ saved_models
 .vscode
 predictions
 predictions_old
+notebooks
+models
+LatentDimensionReduction/grid_search
+TODO.md
